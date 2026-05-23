@@ -10,10 +10,9 @@ export const createApp = () =>
     .use(
       cors({
         origin: [
-          "http://localhost:5173",
-          "http://localhost:3000",
-          process.env.APP_URL ?? "",
-        ].filter(Boolean),
+          /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+          ...(process.env.APP_URL ? [process.env.APP_URL] : []),
+        ],
         credentials: true,
       })
     )

@@ -20,8 +20,8 @@ export const auth = betterAuth({
   emailAndPassword: { enabled: true },
   plugins: [username()],
   trustedOrigins: [
-    "http://localhost:5173",
-    "http://localhost:3000",
+    "http://localhost:*",
+    "http://127.0.0.1:*",
     process.env.APP_URL ?? "",
   ].filter(Boolean),
 });
