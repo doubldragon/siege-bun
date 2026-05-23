@@ -6,7 +6,11 @@
   "main": "./index.ts",
   "exports": {
     ".": "./index.ts",
-    "./*": "./src/*.ts"
+    "./db-schema": "./src/db-schema.ts",
+    "./types": "./src/types.ts",
+    "./constants": "./src/constants.ts",
+    "./game-rules": "./src/game-rules.ts",
+    "./db-schema.ts": "./src/db-schema.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2"
