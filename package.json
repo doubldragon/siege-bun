@@ -1,0 +1,13 @@
+{
+  "name": "siege-bun",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev:server": "bun --cwd packages/server --watch src/index.ts",
+    "dev:web": "bun --cwd packages/web dev",
+    "dev:desktop": "bun --cwd packages/desktop src/main.ts",
+    "build:web": "bun --cwd packages/web build",
+    "db:migrate": "bun --cwd packages/server run db:migrate",
+    "db:seed": "bun --cwd packages/server run db:seed"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@siege/shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  }
+}
