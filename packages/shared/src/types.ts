@@ -33,6 +33,13 @@ export interface DeckEntry {
   quantity: number;
 }
 
+export interface DeckEntryDetail {
+  cardId: number;
+  quantity: number;
+  name: string;
+  deckPoints: number | null;
+}
+
 export interface DeckSummary {
   id: number;
   name: string;
@@ -48,7 +55,7 @@ export interface DeckSummary {
 }
 
 export interface DeckDetail extends DeckSummary {
-  cards: DeckEntry[];
+  cards: DeckEntryDetail[];
   totalPoints: number;
 }
 

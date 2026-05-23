@@ -1,4 +1,16 @@
-import type { Card, DeckDetail, AuthUser } from "@siege/shared/types";
+import type { Card, CardType, DeckDetail, AuthUser } from "@siege/shared/types";
+
+export type AdminCardBody = {
+  isMonarch: boolean;
+  typeId: number;
+  typeIcon?: string | null;
+  name: string;
+  deckPoints?: number | null;
+  cost?: number | null;
+  action: string;
+  effect: string;
+  flavorText: string;
+};
 
 export type CreateDeckBody = {
   name: string;
@@ -48,5 +60,25 @@ export const api = {
   },
   user: {
     me: () => apiFetch<AuthUser>("/api/user"),
+  },
+  admin: {
+    cardTypes: () => apiFetch<CardType[]>("/api/admin/card-types"),
+    cards: {
+      list: () => apiFetch<Card[]>("/api/admin/cards"),
+      create: (body: AdminCardBody) =>
+        apiFetch<Card>("/api/admin/cards", {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      update: (id: number, body: AdminCardBody) =>
+        apiFetch<Card>(`/api/admin/cards/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(body),
+        }),
+      delete: (id: number) =>
+        apiFetch<{ success: boolean }>(`/api/admin/cards/${id}`, {
+          method: "DELETE",
+        }),
+    },
   },
 };

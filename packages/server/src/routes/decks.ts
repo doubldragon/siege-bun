@@ -19,18 +19,18 @@ const deckBodySchema = t.Object({
 });
 
 async function fetchCardMaps() {
-  const allCards = await db
-    .select({ id: cards.id, deckPoints: cards.deckPoints, typeId: cards.typeId })
-    .from(cards);
+  const allCards = await db.select().from(cards);
   return {
     cardPointsById: new Map(allCards.map((c) => [c.id, c.deckPoints ?? 0])),
     cardTypeById: new Map(allCards.map((c) => [c.id, c.typeId])),
+    cardNameById: new Map(allCards.map((c) => [c.id, c.name])),
   };
 }
 
 async function enrichDeck(
   deck: typeof decks.$inferSelect,
-  cardPointsById: Map<number, number>
+  cardPointsById: Map<number, number>,
+  cardNameById: Map<number, string>
 ) {
   const [leader] = await db
     .select({
@@ -67,6 +67,12 @@ async function enrichDeck(
     username: owner?.username ?? "unknown",
     faction: deck.isMonarch ? ("Monarch" as const) : ("Invader" as const),
     totalPoints,
+    cards: entries.map((e) => ({
+      cardId: e.cardId,
+      quantity: e.quantity,
+      name: cardNameById.get(e.cardId) ?? "",
+      deckPoints: cardPointsById.get(e.cardId) ?? null,
+    })),
   };
 }
 
@@ -75,27 +81,27 @@ export const decksRoutes = new Elysia({ prefix: "/api" })
 
   // Public: recent decks
   .get("/decks/recent", async () => {
-    const { cardPointsById } = await fetchCardMaps();
+    const { cardPointsById, cardNameById } = await fetchCardMaps();
     const recent = await db
       .select()
       .from(decks)
       .where(and(isNull(decks.deletedAt), eq(decks.isPrivate, false)))
       .orderBy(desc(decks.createdAt))
       .limit(10);
-    return Promise.all(recent.map((d) => enrichDeck(d, cardPointsById)));
+    return Promise.all(recent.map((d) => enrichDeck(d, cardPointsById, cardNameById)));
   })
 
   // Public: single deck
   .get(
     "/decks/:id",
     async ({ params, status }) => {
-      const { cardPointsById } = await fetchCardMaps();
+      const { cardPointsById, cardNameById } = await fetchCardMaps();
       const [deck] = await db
         .select()
         .from(decks)
         .where(and(eq(decks.id, Number(params.id)), isNull(decks.deletedAt)));
       if (!deck) return status(404, { message: "Deck not found" });
-      return enrichDeck(deck, cardPointsById);
+      return enrichDeck(deck, cardPointsById, cardNameById);
     },
     { params: t.Object({ id: t.String() }) }
   )
@@ -103,13 +109,13 @@ export const decksRoutes = new Elysia({ prefix: "/api" })
   // Auth: current user's decks
   .get("/decks", async ({ user, status }) => {
     if (!user) return status(401, { message: "Unauthorized" });
-    const { cardPointsById } = await fetchCardMaps();
+    const { cardPointsById, cardNameById } = await fetchCardMaps();
     const userDecks = await db
       .select()
       .from(decks)
       .where(and(eq(decks.userId, user.id), isNull(decks.deletedAt)))
       .orderBy(desc(decks.createdAt));
-    return Promise.all(userDecks.map((d) => enrichDeck(d, cardPointsById)));
+    return Promise.all(userDecks.map((d) => enrichDeck(d, cardPointsById, cardNameById)));
   })
 
   // Auth: create deck
@@ -118,7 +124,7 @@ export const decksRoutes = new Elysia({ prefix: "/api" })
     async ({ user, body, status }) => {
       if (!user) return status(401, { message: "Unauthorized" });
 
-      const { cardPointsById, cardTypeById } = await fetchCardMaps();
+      const { cardPointsById, cardTypeById, cardNameById } = await fetchCardMaps();
       const castleId =
         body.isMonarch
           ? (body.cards.find(
@@ -148,7 +154,7 @@ export const decksRoutes = new Elysia({ prefix: "/api" })
         })
         .returning();
 
-      return enrichDeck(deck, cardPointsById);
+      return enrichDeck(deck, cardPointsById, cardNameById);
     },
     { body: deckBodySchema }
   )
@@ -166,7 +172,7 @@ export const decksRoutes = new Elysia({ prefix: "/api" })
       if (!existing) return status(404, { message: "Deck not found" });
       if (existing.userId !== user.id) return status(403, { message: "Forbidden" });
 
-      const { cardPointsById, cardTypeById } = await fetchCardMaps();
+      const { cardPointsById, cardTypeById, cardNameById } = await fetchCardMaps();
       const castleId =
         body.isMonarch
           ? (body.cards.find(
@@ -197,7 +203,7 @@ export const decksRoutes = new Elysia({ prefix: "/api" })
         .where(eq(decks.id, Number(params.id)))
         .returning();
 
-      return enrichDeck(deck, cardPointsById);
+      return enrichDeck(deck, cardPointsById, cardNameById);
     },
     { params: t.Object({ id: t.String() }), body: deckBodySchema }
   )

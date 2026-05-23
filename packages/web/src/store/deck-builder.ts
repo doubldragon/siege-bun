@@ -56,7 +56,13 @@ export const useDeckBuilderStore = create<DeckBuilderState>((set) => ({
 
   setLeader: (leaderId) => set({ leaderId }),
 
-  setCastle: (castleId) => set({ castleId }),
+  setCastle: (castleId) =>
+    set((s) => {
+      const entries = new Map(s.entries);
+      if (s.castleId !== null) entries.delete(s.castleId);
+      if (castleId !== null) entries.set(castleId, 1);
+      return { castleId, entries };
+    }),
 
   setEntry: (cardId, quantity) =>
     set((s) => {

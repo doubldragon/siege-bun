@@ -18,6 +18,16 @@ export const auth = betterAuth({
     schema: { user: users, session: sessions, account: accounts, verification: verifications },
   }),
   emailAndPassword: { enabled: true },
+  user: {
+    additionalFields: {
+      isAdmin: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+        input: false,
+      },
+    },
+  },
   plugins: [username()],
   trustedOrigins: [
     "http://localhost:*",

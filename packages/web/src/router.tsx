@@ -13,6 +13,7 @@ import { LoginPage } from "./routes/login";
 import { RegisterPage } from "./routes/register";
 import { DeckBuilderPage } from "./routes/deckbuilder";
 import { DeckDetailPage } from "./routes/deck-detail";
+import { AdminCardsPage } from "./routes/admin-cards";
 
 function NavBar() {
   const { user } = useAuthStore();
@@ -36,6 +37,11 @@ function NavBar() {
         >
           Build Deck
         </Link>
+        {user?.isAdmin && (
+          <Link to="/admin/cards" className="text-slate-400 hover:text-white text-sm">
+            Admin
+          </Link>
+        )}
         {user ? (
           <>
             <span className="text-slate-400 text-sm">{user.username}</span>
@@ -105,12 +111,19 @@ const deckDetailRoute = createRoute({
   component: DeckDetailPage,
 });
 
+const adminCardsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/cards",
+  component: AdminCardsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   loginRoute,
   registerRoute,
   deckBuilderRoute,
   deckDetailRoute,
+  adminCardsRoute,
 ]);
 
 export const router = createRouter({ routeTree });

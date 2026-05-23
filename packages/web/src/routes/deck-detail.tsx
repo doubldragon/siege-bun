@@ -27,7 +27,7 @@ export function DeckDetailPage() {
     );
 
   const leader = deck.leader;
-  const deckCards = deck.cards as Array<{ cardId: number; quantity: number }>;
+  const deckCards = deck.cards;
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-8">
@@ -80,10 +80,13 @@ export function DeckDetailPage() {
                 key={entry.cardId}
                 className="flex items-center justify-between py-1 border-b border-slate-800 last:border-0"
               >
-                <span className="text-sm text-slate-300">
-                  Card #{entry.cardId}
-                </span>
-                <span className="text-sm text-slate-400">×{entry.quantity}</span>
+                <span className="text-sm text-slate-300">{entry.name}</span>
+                <div className="flex items-center gap-3 text-sm text-slate-400 shrink-0">
+                  {entry.deckPoints != null && (
+                    <span>{entry.deckPoints}pt</span>
+                  )}
+                  <span>×{entry.quantity}</span>
+                </div>
               </div>
             ))}
           </div>
