@@ -1,0 +1,1 @@
+ALTER TABLE `cards` ADD `selectable` integer DEFAULT true NOT NULL;

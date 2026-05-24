@@ -10,6 +10,7 @@ export type AdminCardBody = {
   action: string;
   effect: string;
   flavorText: string;
+  selectable: boolean;
 };
 
 export type CreateDeckBody = {

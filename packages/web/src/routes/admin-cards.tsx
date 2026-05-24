@@ -15,6 +15,7 @@ const EMPTY_FORM: AdminCardBody = {
   action: "",
   effect: "",
   flavorText: "",
+  selectable: true,
 };
 
 function CardForm({
@@ -157,6 +158,16 @@ function CardForm({
         />
       </div>
 
+      <label className="flex items-center gap-2 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={form.selectable}
+          onChange={(e) => set("selectable", e.target.checked)}
+          className="w-4 h-4 accent-amber-500"
+        />
+        <span className="text-sm text-slate-300">Selectable in deck builder</span>
+      </label>
+
       <div className="flex gap-3 justify-end pt-2">
         <button
           type="button"
@@ -188,6 +199,7 @@ export function AdminCardsPage() {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<ModalState>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [tab, setTab] = useState<"monarch" | "invader">("monarch");
 
   const authLoading = useAuthStore((s) => s.isLoading);
   const isAdmin = user?.isAdmin === true;
@@ -225,6 +237,26 @@ export function AdminCardsPage() {
       queryClient.invalidateQueries({ queryKey: ["admin", "cards"] });
       queryClient.invalidateQueries({ queryKey: ["cards"] });
       setModal(null);
+    },
+  });
+
+  const toggleSelectableMutation = useMutation({
+    mutationFn: ({ card }: { card: Card }) =>
+      api.admin.cards.update(card.id, {
+        isMonarch: card.isMonarch,
+        typeId: card.typeId,
+        typeIcon: card.typeIcon,
+        name: card.name,
+        deckPoints: card.deckPoints,
+        cost: card.cost,
+        action: card.action,
+        effect: card.effect,
+        flavorText: card.flavorText,
+        selectable: !card.selectable,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "cards"] });
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
     },
   });
 
@@ -280,15 +312,25 @@ export function AdminCardsPage() {
       {isLoading ? (
         <p className="text-slate-400">Loading…</p>
       ) : (
-        <div className="space-y-8">
-          {[
-            { label: "Monarch", rows: monarchCards },
-            { label: "Invader", rows: invaderCards },
-          ].map(({ label, rows }) => (
-            <section key={label}>
-              <h2 className="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-3">
-                {label} ({rows.length})
-              </h2>
+        <div>
+          <div className="flex gap-1 mb-4 border-b border-slate-700">
+            {(["monarch", "invader"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
+                  tab === t
+                    ? "border-amber-500 text-amber-400"
+                    : "border-transparent text-slate-400 hover:text-white"
+                }`}
+              >
+                {t === "monarch" ? `Monarch (${monarchCards.length})` : `Invader (${invaderCards.length})`}
+              </button>
+            ))}
+          </div>
+          {(() => {
+            const rows = tab === "monarch" ? monarchCards : invaderCards;
+            return (
               <div className="bg-slate-900 border border-slate-700 rounded-lg overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -298,6 +340,7 @@ export function AdminCardsPage() {
                       <th className="text-left px-4 py-2">Type</th>
                       <th className="text-right px-4 py-2">Pts</th>
                       <th className="text-right px-4 py-2">Cost</th>
+                      <th className="text-right px-4 py-2">Selectable</th>
                       <th className="px-4 py-2"></th>
                     </tr>
                   </thead>
@@ -309,7 +352,10 @@ export function AdminCardsPage() {
                       >
                         <td className="px-4 py-2 text-slate-500">{card.id}</td>
                         <td className="px-4 py-2 text-white font-medium">
-                          {card.name}
+                          <button className="cursor-pointer" onClick={() => setModal({ mode: "edit", card })}>
+
+                            {card.name}
+                          </button>
                         </td>
                         <td className="px-4 py-2 text-slate-300">
                           {card.typeName}
@@ -319,6 +365,15 @@ export function AdminCardsPage() {
                         </td>
                         <td className="px-4 py-2 text-right text-slate-300">
                           {card.cost ?? "—"}
+                        </td>
+                        
+                        <td className="px-4 py-2 text-right">
+                          <button
+                            onClick={() => toggleSelectableMutation.mutate({ card })}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${card.selectable ? "bg-amber-500" : "bg-slate-600"}`}
+                          >
+                            <span className={`inline-block h-3 w-3 rounded-full bg-white transition-transform ${card.selectable ? "translate-x-5" : "translate-x-1"}`} />
+                          </button>
                         </td>
                         <td className="px-4 py-2 text-right">
                           <div className="flex items-center justify-end gap-3">
@@ -368,8 +423,8 @@ export function AdminCardsPage() {
                   </tbody>
                 </table>
               </div>
-            </section>
-          ))}
+            );
+          })()}
         </div>
       )}
 
@@ -398,6 +453,7 @@ export function AdminCardsPage() {
                       action: modal.card.action,
                       effect: modal.card.effect,
                       flavorText: modal.card.flavorText,
+                      selectable: modal.card.selectable,
                     }
                   : EMPTY_FORM
               }

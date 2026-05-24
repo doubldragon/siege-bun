@@ -14,6 +14,7 @@ const cardBodySchema = t.Object({
   action: t.String(),
   effect: t.String(),
   flavorText: t.String(),
+  selectable: t.Boolean(),
 });
 
 async function queryCardTypes() {
@@ -21,26 +22,28 @@ async function queryCardTypes() {
 }
 
 async function queryCards() {
-  return db
-    .select({
-      id: cards.id,
-      isMonarch: cards.isMonarch,
-      typeId: cards.typeId,
-      typeName: cardTypes.type,
-      typeIcon: cards.typeIcon,
-      name: cards.name,
-      deckPoints: cards.deckPoints,
-      cost: cards.cost,
-      action: cards.action,
-      effect: cards.effect,
-      flavorText: cards.flavorText,
-      createdAt: cards.createdAt,
-      updatedAt: cards.updatedAt,
-    })
-    .from(cards)
-    .innerJoin(cardTypes, eq(cards.typeId, cardTypes.id))
-    .where(isNull(cards.deletedAt))
-    .orderBy(asc(cards.isMonarch), asc(cards.typeId), asc(cards.name));
+  const [allCards, allTypes] = await Promise.all([
+    db.select().from(cards).where(isNull(cards.deletedAt))
+      .orderBy(asc(cards.isMonarch), asc(cards.typeId), asc(cards.name)),
+    db.select().from(cardTypes),
+  ]);
+  const typeMap = new Map(allTypes.map((t) => [t.id, t.type]));
+  return allCards.map((c) => ({
+    id: c.id,
+    isMonarch: c.isMonarch,
+    typeId: c.typeId,
+    typeName: typeMap.get(c.typeId) ?? "",
+    typeIcon: c.typeIcon,
+    name: c.name,
+    deckPoints: c.deckPoints,
+    cost: c.cost,
+    action: c.action,
+    effect: c.effect,
+    flavorText: c.flavorText,
+    selectable: c.selectable,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
+  }));
 }
 
 export const adminRoutes = new Elysia({ prefix: "/api" })

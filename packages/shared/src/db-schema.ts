@@ -19,6 +19,7 @@ export const cards = sqliteTable("cards", {
   action: text("action").notNull(),
   effect: text("effect").notNull(),
   flavorText: text("flavor_text").notNull(),
+  selectable: integer("selectable", { mode: "boolean" }).notNull().default(true),
   deletedAt: text("deleted_at"),
   createdAt: text("created_at").default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   updatedAt: text("updated_at").default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),

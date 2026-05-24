@@ -26,6 +26,7 @@ export interface Card {
   action: string;
   effect: string;
   flavorText: string;
+  selectable: boolean;
 }
 
 export interface DeckEntry {

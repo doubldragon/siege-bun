@@ -49,10 +49,10 @@ export function DeckBuilderPage() {
     }
   }, [cards]);
 
-  const leaders = cards.filter((c) => c.typeId === CARD_TYPE_IDS.Leader);
-  const castles = cards.filter((c) => c.typeId === CARD_TYPE_IDS.Castle);
+  const leaders = cards.filter((c) => c.typeId === CARD_TYPE_IDS.Leader && c.selectable);
+  const castles = cards.filter((c) => c.typeId === CARD_TYPE_IDS.Castle && c.selectable);
   const poolCards = cards.filter(
-    (c) => c.typeId !== CARD_TYPE_IDS.Leader && c.typeId !== CARD_TYPE_IDS.Castle
+    (c) => c.typeId !== CARD_TYPE_IDS.Leader && c.typeId !== CARD_TYPE_IDS.Castle && c.selectable
   );
   const allTypeNames = [
     ...new Set(poolCards.map((c) => c.typeName as CardTypeName)),
