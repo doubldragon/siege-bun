@@ -111,10 +111,10 @@ export function DeckBuilderPage() {
   return (
     <main className="max-w-6xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6">
-        <Link to="/" onClick={reset} className="text-slate-400 hover:text-white text-sm">
+        <Link to="/" onClick={reset} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">
           ← Home
         </Link>
-        <h1 className="text-xl font-bold text-white">
+        <h1 className="text-xl font-bold text-slate-900 dark:text-white">
           {editingDeckId ? "Edit Deck" : "New Deck"}
         </h1>
       </div>
@@ -141,7 +141,7 @@ export function DeckBuilderPage() {
                       value={deckName}
                       onChange={(e) => setDeckName(e.target.value)}
                       placeholder="Name your deck…"
-                      className="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500"
                     />
                   </div>
 
@@ -165,7 +165,7 @@ export function DeckBuilderPage() {
                     <button
                       onClick={handleSave}
                       disabled={!canSave || isSaving}
-                      className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-900 font-semibold py-2.5 rounded transition-colors"
+                      className="w-full bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-white font-semibold py-2.5 rounded transition-colors"
                     >
                       {isSaving
                         ? "Saving…"
@@ -174,18 +174,18 @@ export function DeckBuilderPage() {
                         : "Save Deck"}
                     </button>
                   ) : (
-                    <div className="border border-slate-700 rounded p-3 text-center space-y-2">
-                      <p className="text-slate-400 text-sm">Sign in to save this deck</p>
+                    <div className="border border-slate-200 dark:border-slate-700 rounded p-3 text-center space-y-2">
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Sign in to save this deck</p>
                       <div className="flex gap-2">
                         <Link
                           to="/login"
-                          className="flex-1 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium py-1.5 rounded text-center"
+                          className="flex-1 text-sm bg-sky-500 hover:bg-sky-400 text-white font-medium py-1.5 rounded text-center"
                         >
                           Sign In
                         </Link>
                         <Link
                           to="/register"
-                          className="flex-1 text-sm bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded text-center"
+                          className="flex-1 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-1.5 rounded text-center"
                         >
                           Register
                         </Link>
@@ -198,17 +198,17 @@ export function DeckBuilderPage() {
           )}
 
           {isMonarch === null && (
-            <p className="text-slate-500 text-sm text-center py-4">
+            <p className="text-slate-400 dark:text-slate-500 text-sm text-center py-4">
               Choose a faction to get started.
             </p>
           )}
         </div>
 
         {/* Right: Card pool */}
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 flex flex-col lg:overflow-hidden">
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col lg:overflow-hidden">
           {isMonarch === null ? (
             <div className="flex items-center justify-center flex-1">
-              <p className="text-slate-500 text-sm">Choose a faction first.</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm">Choose a faction first.</p>
             </div>
           ) : (
             <CardPool cards={poolCards} allTypeNames={allTypeNames} />

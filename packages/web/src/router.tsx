@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { useAuthStore } from "./store/auth";
+import { useThemeStore } from "./store/theme";
 import { authClient } from "./lib/auth-client";
 import { HomePage } from "./routes/home";
 import { LoginPage } from "./routes/login";
@@ -17,6 +18,7 @@ import { AdminCardsPage } from "./routes/admin-cards";
 
 function NavBar() {
   const { user } = useAuthStore();
+  const { isDark, toggle } = useThemeStore();
   const navigate = useNavigate();
 
   async function handleSignOut() {
@@ -26,45 +28,52 @@ function NavBar() {
   }
 
   return (
-    <nav className="bg-slate-900 border-b border-slate-700 px-6 py-3 flex items-center justify-between">
-      <Link to="/" className="text-amber-400 font-bold text-xl tracking-wide hover:text-amber-300">
-        ⚔ SIEGE
+    <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between">
+      <Link to="/" className="text-sky-400 font-bold text-xl tracking-wide hover:text-sky-300">
+       <img src={`/img/siege-banner.png`} />
       </Link>
       <div className="flex items-center gap-4">
         <Link
           to="/deckbuilder"
-          className="text-slate-300 hover:text-white text-sm font-medium"
+          className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm font-medium"
         >
           Build Deck
         </Link>
         {user?.isAdmin && (
-          <Link to="/admin/cards" className="text-slate-400 hover:text-white text-sm">
+          <Link to="/admin/cards" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">
             Admin
           </Link>
         )}
         {user ? (
           <>
-            <span className="text-slate-400 text-sm">{user.username}</span>
+            <span className="text-slate-500 dark:text-slate-400 text-sm">{user.username}</span>
             <button
               onClick={handleSignOut}
-              className="text-slate-400 hover:text-white text-sm"
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm"
             >
               Sign Out
             </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="text-slate-300 hover:text-white text-sm">
+            <Link to="/login" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm">
               Sign In
             </Link>
             <Link
               to="/register"
-              className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium text-sm px-3 py-1.5 rounded"
+              className="bg-sky-500 hover:bg-sky-400 text-white font-medium text-sm px-3 py-1.5 rounded"
             >
               Register
             </Link>
           </>
         )}
+        <button
+          onClick={toggle}
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isDark ? "bg-sky-500" : "bg-slate-300"}`}
+        >
+          <span className={`inline-block h-3 w-3 rounded-full bg-white transition-transform ${isDark ? "translate-x-5" : "translate-x-1"}`} />
+        </button>
       </div>
     </nav>
   );
@@ -72,7 +81,7 @@ function NavBar() {
 
 function RootLayout() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <NavBar />
       <Outlet />
     </div>

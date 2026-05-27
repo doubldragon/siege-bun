@@ -1,4 +1,4 @@
-import type { Card, CardType, DeckDetail, AuthUser } from "@siege/shared/types";
+import type { Card, CardEffects, CardType, DeckDetail, AuthUser } from "@siege/shared/types";
 
 export type AdminCardBody = {
   isMonarch: boolean;
@@ -11,6 +11,13 @@ export type AdminCardBody = {
   effect: string;
   flavorText: string;
   selectable: boolean;
+  meleeAttack?: number | null;
+  meleeDefense?: number | null;
+  rangedDefense?: number | null;
+  siegeAttack?: number | null;
+  wallStrength?: number | null;
+  sides?: number | null;
+  effects?: CardEffects | null;
 };
 
 export type CreateDeckBody = {

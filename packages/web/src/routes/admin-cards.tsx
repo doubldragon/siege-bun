@@ -4,6 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../store/auth";
 import { api, type AdminCardBody } from "../lib/api";
 import type { Card, CardType } from "@siege/shared/types";
+import { Modal } from "../components/Modal";
+import { CardPreview } from "../components/CardPreview";
+import { EffectsEditor } from "../components/EffectsEditor";
 
 const EMPTY_FORM: AdminCardBody = {
   isMonarch: true,
@@ -16,6 +19,13 @@ const EMPTY_FORM: AdminCardBody = {
   effect: "",
   flavorText: "",
   selectable: true,
+  meleeAttack: null,
+  meleeDefense: null,
+  rangedDefense: null,
+  siegeAttack: null,
+  wallStrength: null,
+  sides: null,
+  effects: null,
 };
 
 function CardForm({
@@ -33,6 +43,10 @@ function CardForm({
 }) {
   const [form, setForm] = useState<AdminCardBody>(initial);
 
+  const selectedTypeName = cardTypes.find((ct) => ct.id === form.typeId)?.type ?? "";
+  const isCastle = selectedTypeName === "Castle";
+  const isSiegeType = selectedTypeName === "Siege Engine" || selectedTypeName === "Siege Defense";
+
   function set<K extends keyof AdminCardBody>(key: K, value: AdminCardBody[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
@@ -43,8 +57,8 @@ function CardForm({
   }
 
   const inputCls =
-    "w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500";
-  const labelCls = "block text-xs text-slate-400 uppercase tracking-wide mb-1";
+    "w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500";
+  const labelCls = "block text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -128,6 +142,87 @@ function CardForm({
         </div>
       </div>
 
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <label className={labelCls}>Melee Attack</label>
+          <input
+            type="number"
+            value={form.meleeAttack ?? ""}
+            onChange={(e) => set("meleeAttack", e.target.value ? Number(e.target.value) : null)}
+            placeholder="—"
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Melee Defense</label>
+          <input
+            type="number"
+            value={form.meleeDefense ?? ""}
+            onChange={(e) => set("meleeDefense", e.target.value ? Number(e.target.value) : null)}
+            placeholder="—"
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Ranged Defense</label>
+          <input
+            type="number"
+            value={form.rangedDefense ?? ""}
+            onChange={(e) => set("rangedDefense", e.target.value ? Number(e.target.value) : null)}
+            placeholder="—"
+            className={inputCls}
+          />
+        </div>
+      </div>
+
+      {isSiegeType && (
+        <div>
+          <label className={labelCls}>Siege Attack</label>
+          <input
+            type="number"
+            value={form.siegeAttack ?? ""}
+            onChange={(e) => set("siegeAttack", e.target.value ? Number(e.target.value) : null)}
+            placeholder="—"
+            className={inputCls}
+          />
+        </div>
+      )}
+
+      {isCastle && (
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Wall Strength</label>
+            <input
+              type="number"
+              value={form.wallStrength ?? ""}
+              onChange={(e) => set("wallStrength", e.target.value ? Number(e.target.value) : null)}
+              placeholder="—"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Lanes (sides)</label>
+            <input
+              type="number"
+              min={3}
+              max={5}
+              value={form.sides ?? ""}
+              onChange={(e) => set("sides", e.target.value ? Number(e.target.value) : null)}
+              placeholder="3–5"
+              className={inputCls}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+        <label className={labelCls + " mb-3"}>Structured Effects</label>
+        <EffectsEditor
+          value={form.effects ?? null}
+          onChange={(v) => set("effects", v)}
+        />
+      </div>
+
       <div>
         <label className={labelCls}>Action</label>
         <textarea
@@ -163,9 +258,9 @@ function CardForm({
           type="checkbox"
           checked={form.selectable}
           onChange={(e) => set("selectable", e.target.checked)}
-          className="w-4 h-4 accent-amber-500"
+          className="w-4 h-4 accent-sky-500"
         />
-        <span className="text-sm text-slate-300">Selectable in deck builder</span>
+        <span className="text-sm text-slate-700 dark:text-slate-300">Selectable in deck builder</span>
       </label>
 
       <div className="flex gap-3 justify-end pt-2">
@@ -179,7 +274,7 @@ function CardForm({
         <button
           type="submit"
           disabled={isSaving || !form.typeId || !form.name}
-          className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-900 font-semibold rounded"
+          className="px-4 py-2 text-sm bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-white font-semibold rounded"
         >
           {isSaving ? "Saving…" : "Save Card"}
         </button>
@@ -198,6 +293,7 @@ export function AdminCardsPage() {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<ModalState>(null);
+  const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [tab, setTab] = useState<"monarch" | "invader">("monarch");
 
@@ -294,10 +390,10 @@ export function AdminCardsPage() {
   return (
     <main className="max-w-7xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-white">Admin — Cards</h1>
+        <h1 className="text-xl font-bold text-slate-900 dark:text-white">Admin — Cards</h1>
         <button
           onClick={() => setModal({ mode: "create" })}
-          className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold text-sm px-4 py-2 rounded"
+          className="bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm px-4 py-2 rounded"
         >
           + Add Card
         </button>
@@ -313,15 +409,15 @@ export function AdminCardsPage() {
         <p className="text-slate-400">Loading…</p>
       ) : (
         <div>
-          <div className="flex gap-1 mb-4 border-b border-slate-700">
+          <div className="flex gap-1 mb-4 border-b border-slate-200 dark:border-slate-700">
             {(["monarch", "invader"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
                   tab === t
-                    ? "border-amber-500 text-amber-400"
-                    : "border-transparent text-slate-400 hover:text-white"
+                    ? "border-sky-500 text-sky-400"
+                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 {t === "monarch" ? `Monarch (${monarchCards.length})` : `Invader (${invaderCards.length})`}
@@ -331,16 +427,17 @@ export function AdminCardsPage() {
           {(() => {
             const rows = tab === "monarch" ? monarchCards : invaderCards;
             return (
-              <div className="bg-slate-900 border border-slate-700 rounded-lg overflow-x-auto">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wide">
+                    <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
                       <th className="text-left px-4 py-2">ID</th>
                       <th className="text-left px-4 py-2">Name</th>
                       <th className="text-left px-4 py-2">Type</th>
                       <th className="text-right px-4 py-2">Pts</th>
                       <th className="text-right px-4 py-2">Cost</th>
                       <th className="text-right px-4 py-2">Selectable</th>
+                      <th className="text-right px-4 py-2">Preview</th>
                       <th className="px-4 py-2"></th>
                     </tr>
                   </thead>
@@ -348,16 +445,16 @@ export function AdminCardsPage() {
                     {rows.map((card) => (
                       <tr
                         key={card.id}
-                        className="border-b border-slate-800 last:border-0 hover:bg-slate-800/50"
+                        className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                       >
-                        <td className="px-4 py-2 text-slate-500">{card.id}</td>
-                        <td className="px-4 py-2 text-white font-medium">
+                        <td className="px-4 py-2 text-slate-400 dark:text-slate-500">{card.id}</td>
+                        <td className="px-4 py-2 text-slate-900 dark:text-white font-medium">
                           <button className="cursor-pointer" onClick={() => setModal({ mode: "edit", card })}>
 
                             {card.name}
                           </button>
                         </td>
-                        <td className="px-4 py-2 text-slate-300">
+                        <td className="px-4 py-2 text-slate-700 dark:text-slate-300">
                           {card.typeName}
                         </td>
                         <td className="px-4 py-2 text-right text-slate-300">
@@ -370,16 +467,27 @@ export function AdminCardsPage() {
                         <td className="px-4 py-2 text-right">
                           <button
                             onClick={() => toggleSelectableMutation.mutate({ card })}
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${card.selectable ? "bg-amber-500" : "bg-slate-600"}`}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${card.selectable ? "bg-sky-500" : "bg-slate-600"}`}
                           >
                             <span className={`inline-block h-3 w-3 rounded-full bg-white transition-transform ${card.selectable ? "translate-x-5" : "translate-x-1"}`} />
+                          </button>
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <button
+                            onClick={() => setPreviewCard(card)}
+                            className="text-slate-400 hover:text-white"
+                            title="Preview card"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                              <path d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" />
+                            </svg>
                           </button>
                         </td>
                         <td className="px-4 py-2 text-right">
                           <div className="flex items-center justify-end gap-3">
                             <button
                               onClick={() => setModal({ mode: "edit", card })}
-                              className="text-slate-400 hover:text-white text-xs"
+                              className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs"
                             >
                               Edit
                             </button>
@@ -401,7 +509,7 @@ export function AdminCardsPage() {
                             ) : (
                               <button
                                 onClick={() => setDeleteConfirm(card.id)}
-                                className="text-slate-500 hover:text-red-400 text-xs"
+                                className="text-slate-400 dark:text-slate-500 hover:text-red-400 text-xs"
                               >
                                 Delete
                               </button>
@@ -413,7 +521,7 @@ export function AdminCardsPage() {
                     {rows.length === 0 && (
                       <tr>
                         <td
-                          colSpan={6}
+                          colSpan={8}
                           className="px-4 py-6 text-center text-slate-500"
                         >
                           No cards yet.
@@ -428,11 +536,10 @@ export function AdminCardsPage() {
         </div>
       )}
 
-      {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl mx-4 p-6 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold text-white mb-6">
+        <Modal onClose={() => setModal(null)}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl w-full max-w-2xl mx-4 p-6 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
               {modal.mode === "edit" ? `Edit: ${modal.card.name}` : "New Card"}
             </h2>
 
@@ -454,6 +561,13 @@ export function AdminCardsPage() {
                       effect: modal.card.effect,
                       flavorText: modal.card.flavorText,
                       selectable: modal.card.selectable,
+                      meleeAttack: modal.card.meleeAttack,
+                      meleeDefense: modal.card.meleeDefense,
+                      rangedDefense: modal.card.rangedDefense,
+                      siegeAttack: modal.card.siegeAttack,
+                      wallStrength: modal.card.wallStrength,
+                      sides: modal.card.sides,
+                      effects: modal.card.effects,
                     }
                   : EMPTY_FORM
               }
@@ -463,7 +577,13 @@ export function AdminCardsPage() {
               isSaving={isSaving}
             />
           </div>
-        </div>
+        </Modal>
+      )}
+
+      {previewCard && (
+        <Modal onClose={() => setPreviewCard(null)}>
+          <CardPreview card={previewCard} />
+        </Modal>
       )}
     </main>
   );

@@ -26,6 +26,13 @@ export const cardsRoutes = new Elysia({ prefix: "/api" }).get(
         effect: cards.effect,
         flavorText: cards.flavorText,
         selectable: cards.selectable,
+        meleeAttack: cards.meleeAttack,
+        meleeDefense: cards.meleeDefense,
+        rangedDefense: cards.rangedDefense,
+        siegeAttack: cards.siegeAttack,
+        wallStrength: cards.wallStrength,
+        sides: cards.sides,
+        effects: cards.effects,
       })
       .from(cards)
       .innerJoin(cardTypes, eq(cards.typeId, cardTypes.id))

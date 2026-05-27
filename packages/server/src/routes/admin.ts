@@ -15,6 +15,13 @@ const cardBodySchema = t.Object({
   effect: t.String(),
   flavorText: t.String(),
   selectable: t.Boolean(),
+  meleeAttack: t.Optional(t.Nullable(t.Number())),
+  meleeDefense: t.Optional(t.Nullable(t.Number())),
+  rangedDefense: t.Optional(t.Nullable(t.Number())),
+  siegeAttack: t.Optional(t.Nullable(t.Number())),
+  wallStrength: t.Optional(t.Nullable(t.Number())),
+  sides: t.Optional(t.Nullable(t.Number())),
+  effects: t.Optional(t.Nullable(t.Any())),
 });
 
 async function queryCardTypes() {
@@ -41,6 +48,13 @@ async function queryCards() {
     effect: c.effect,
     flavorText: c.flavorText,
     selectable: c.selectable,
+    meleeAttack: c.meleeAttack,
+    meleeDefense: c.meleeDefense,
+    rangedDefense: c.rangedDefense,
+    siegeAttack: c.siegeAttack,
+    wallStrength: c.wallStrength,
+    sides: c.sides,
+    effects: c.effects,
     createdAt: c.createdAt,
     updatedAt: c.updatedAt,
   }));

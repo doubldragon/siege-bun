@@ -12,6 +12,7 @@ await db.insert(cardTypes).values([
   { id: 5, type: "Siege Engine" },
   { id: 6, type: "Siege Defense" },
   { id: 7, type: "Espionage" },
+  { id: 8, type: "Troops" },
 ]);
 
 await db.insert(cards).values([

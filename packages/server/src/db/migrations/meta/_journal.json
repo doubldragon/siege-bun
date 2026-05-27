@@ -15,6 +15,13 @@
       "when": 1779646897007,
       "tag": "0001_steady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1779661148886,
+      "tag": "0002_real_vector",
+      "breakpoints": true
     }
   ]
 }

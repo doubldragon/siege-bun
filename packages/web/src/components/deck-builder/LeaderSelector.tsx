@@ -18,12 +18,12 @@ export function LeaderSelector({ leaders }: LeaderSelectorProps) {
             onClick={() => setLeader(card.id)}
             className={`text-left p-3 rounded border transition-colors ${
               leaderId === card.id
-                ? "border-amber-500 bg-amber-500/10"
-                : "border-slate-700 bg-slate-800 hover:border-slate-600"
+                ? "border-emerald-500 bg-emerald-500/10"
+                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600"
             }`}
           >
-            <p className="font-medium text-white text-sm">{card.name}</p>
-            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{card.action}</p>
+            <p className="font-medium text-slate-900 dark:text-white text-sm">{card.name}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">{card.action}</p>
           </button>
         ))}
       </div>

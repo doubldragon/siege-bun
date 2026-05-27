@@ -10,14 +10,14 @@ function MyDecks() {
     queryFn: () => api.decks.list(),
   });
 
-  if (isLoading) return <p className="text-slate-400 text-sm">Loading…</p>;
+  if (isLoading) return <p className="text-slate-500 dark:text-slate-400 text-sm">Loading…</p>;
   if (!data?.length)
     return (
-      <div className="text-center py-8 text-slate-400">
+      <div className="text-center py-8 text-slate-500 dark:text-slate-400">
         <p className="mb-3">No decks yet.</p>
         <Link
           to="/deckbuilder"
-          className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium px-4 py-2 rounded text-sm"
+          className="bg-sky-500 hover:bg-sky-400 text-white font-medium px-4 py-2 rounded text-sm"
         >
           Build Your First Deck
         </Link>
@@ -39,9 +39,9 @@ function RecentDecks() {
     queryFn: () => api.decks.recent(),
   });
 
-  if (isLoading) return <p className="text-slate-400 text-sm">Loading…</p>;
+  if (isLoading) return <p className="text-slate-500 dark:text-slate-400 text-sm">Loading…</p>;
   if (!data?.length)
-    return <p className="text-slate-400 text-sm">No public decks yet.</p>;
+    return <p className="text-slate-500 dark:text-slate-400 text-sm">No public decks yet.</p>;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -58,49 +58,56 @@ export function HomePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-slate-400">Loading…</p>
+        <p className="text-slate-500 dark:text-slate-400">Loading…</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div
+        className="relative flex items-center justify-center min-h-[calc(100vh-56px)]"
+        style={{ backgroundImage: "url('/img/castle-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+      >
+        <div className="absolute inset-0" />
+        <div className="relative z-10 flex flex-col items-center gap-8 p-6 text-center bg-white/70 rounded h-[25vh] w-[50%]">
+          <img src="/img/siege-splash.png" alt="Siege" className="max-w-xs w-full drop-shadow-2xl" />
+          <div className="flex gap-3">
+            <Link
+              to="/deckbuilder"
+              className="bg-sky-500 hover:bg-sky-400 text-white font-semibold px-6 py-2.5 rounded shadow-lg"
+            >
+              Get Started
+            </Link>
+            <Link
+              to="/login"
+              className="bg-slate-900/70 hover:bg-slate-800 text-white font-medium px-6 py-2.5 rounded border border-slate-500 shadow-lg"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8 space-y-12">
-      {user ? (
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-white">My Decks</h2>
-            <Link
-              to="/deckbuilder"
-              className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium px-4 py-2 rounded text-sm"
-            >
-              + New Deck
-            </Link>
-          </div>
-          <MyDecks />
-        </section>
-      ) : (
-        <section className="text-center py-16">
-          <h1 className="text-4xl font-bold text-amber-400 mb-3">Siege</h1>
-          <p className="text-slate-400 mb-6 text-lg">Build your army. Lay siege.</p>
-          <div className="flex gap-3 justify-center">
-            <Link
-              to="/register"
-              className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-6 py-2.5 rounded"
-            >
-              Get Started
-            </Link>
-            <Link
-              to="/login"
-              className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-2.5 rounded border border-slate-600"
-            >
-              Sign In
-            </Link>
-          </div>
-        </section>
-      )}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">My Decks</h2>
+          <Link
+            to="/deckbuilder"
+            className="bg-sky-500 hover:bg-sky-400 text-white font-medium px-4 py-2 rounded text-sm"
+          >
+            + New Deck
+          </Link>
+        </div>
+        <MyDecks />
+      </section>
 
       <section>
-        <h2 className="text-xl font-bold text-white mb-4">Recent Decks</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Recent Decks</h2>
         <RecentDecks />
       </section>
     </main>

@@ -4,8 +4,8 @@ import { calcDeckPoints } from "@siege/shared/game-rules";
 import { MAX_DECK_POINTS } from "@siege/shared/constants";
 
 interface DeckListProps {
-  cards: Card[];      // pool cards for display (no leaders/castles)
-  allCards: Card[];   // all faction cards for accurate point total
+  cards: Card[];
+  allCards: Card[];
 }
 
 export function DeckList({ cards, allCards }: DeckListProps) {
@@ -27,17 +27,17 @@ export function DeckList({ cards, allCards }: DeckListProps) {
         <p className="text-xs text-slate-500 uppercase tracking-wide">Deck</p>
         <p
           className={`text-sm font-semibold ${
-            totalPoints > MAX_DECK_POINTS ? "text-red-400" : "text-slate-300"
+            totalPoints > MAX_DECK_POINTS ? "text-red-400" : "text-slate-700 dark:text-slate-300"
           }`}
         >
           {totalPoints} / {MAX_DECK_POINTS} pts
         </p>
       </div>
 
-      <div className="w-full bg-slate-700 rounded-full h-1.5 mb-3">
+      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-3">
         <div
           className={`h-1.5 rounded-full transition-all ${
-            totalPoints > MAX_DECK_POINTS ? "bg-red-500" : "bg-amber-500"
+            totalPoints > MAX_DECK_POINTS ? "bg-red-500" : "bg-sky-500"
           }`}
           style={{ width: `${pct}%` }}
         />
@@ -57,7 +57,7 @@ export function DeckList({ cards, allCards }: DeckListProps) {
                 key={cardId}
                 className="flex items-center gap-2 py-1"
               >
-                <span className="flex-1 text-sm text-slate-300 truncate">
+                <span className="flex-1 text-sm text-slate-700 dark:text-slate-300 truncate">
                   {card.name}
                 </span>
                 <span className="text-xs text-slate-500 shrink-0">
@@ -66,21 +66,21 @@ export function DeckList({ cards, allCards }: DeckListProps) {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => setEntry(cardId, quantity - 1)}
-                    className="w-5 h-5 flex items-center justify-center rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+                    className="w-5 h-5 flex items-center justify-center rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white text-xs"
                   >
                     −
                   </button>
-                  <span className="w-4 text-center text-sm text-white">{quantity}</span>
+                  <span className="w-4 text-center text-sm text-slate-900 dark:text-white">{quantity}</span>
                   <button
                     onClick={() => setEntry(cardId, quantity + 1)}
                     disabled={quantity >= 3}
-                    className="w-5 h-5 flex items-center justify-center rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-white text-xs"
+                    className="w-5 h-5 flex items-center justify-center rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-40 text-slate-800 dark:text-white text-xs"
                   >
                     +
                   </button>
                   <button
                     onClick={() => removeEntry(cardId)}
-                    className="w-5 h-5 flex items-center justify-center rounded bg-slate-700 hover:bg-red-900 text-slate-400 hover:text-red-400 text-xs ml-1"
+                    className="w-5 h-5 flex items-center justify-center rounded bg-slate-200 dark:bg-slate-700 hover:bg-red-900/30 dark:hover:bg-red-900 text-slate-500 dark:text-slate-400 hover:text-red-400 text-xs ml-1"
                   >
                     ×
                   </button>

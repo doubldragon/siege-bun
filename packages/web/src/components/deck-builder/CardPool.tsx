@@ -1,14 +1,18 @@
+import { useState } from "react";
 import type { Card, CardTypeName } from "@siege/shared/types";
 import { useDeckBuilderStore } from "../../store/deck-builder";
+import { Modal } from "../Modal";
+import { CardPreview } from "../CardPreview";
 
 const TYPE_COLORS: Record<string, string> = {
-  Leader: "text-amber-400",
+  Leader: "text-emerald-400",
   Castle: "text-blue-400",
   Food: "text-green-400",
   Morale: "text-purple-400",
   "Siege Engine": "text-orange-400",
   "Siege Defense": "text-cyan-400",
   Espionage: "text-pink-400",
+  Troops: "text-slate-400",
 };
 
 interface CardPoolProps {
@@ -17,6 +21,7 @@ interface CardPoolProps {
 }
 
 export function CardPool({ cards, allTypeNames }: CardPoolProps) {
+  const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const {
     entries,
     searchText,
@@ -48,7 +53,7 @@ export function CardPool({ cards, allTypeNames }: CardPoolProps) {
           placeholder="Search cards…"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          className="flex-1 bg-slate-800 border border-slate-600 rounded px-3 py-1.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+          className="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500"
         />
       </div>
 
@@ -57,8 +62,8 @@ export function CardPool({ cards, allTypeNames }: CardPoolProps) {
           onClick={clearTypeFilters}
           className={`text-xs px-2 py-1 rounded border transition-colors ${
             typeFilters.size === 0
-              ? "border-slate-400 text-slate-300 bg-slate-700"
-              : "border-slate-600 text-slate-500 hover:border-slate-500"
+              ? "border-slate-400 dark:border-slate-400 text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-700"
+              : "border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-slate-400 dark:hover:border-slate-500"
           }`}
         >
           All
@@ -69,8 +74,8 @@ export function CardPool({ cards, allTypeNames }: CardPoolProps) {
             onClick={() => toggleTypeFilter(type)}
             className={`text-xs px-2 py-1 rounded border transition-colors ${
               typeFilters.has(type)
-                ? "border-slate-400 text-slate-300 bg-slate-700"
-                : "border-slate-600 text-slate-500 hover:border-slate-500"
+                ? "border-slate-400 dark:border-slate-400 text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-700"
+                : "border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-slate-400 dark:hover:border-slate-500"
             }`}
           >
             {type}
@@ -87,13 +92,16 @@ export function CardPool({ cards, allTypeNames }: CardPoolProps) {
             return (
               <div
                 key={card.id}
-                className="flex items-center gap-3 p-2.5 rounded bg-slate-800 hover:bg-slate-750 border border-slate-700"
+                className="flex items-center gap-3 p-2.5 rounded bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-white font-medium truncate">
+                    <button
+                      onClick={() => setPreviewCard(card)}
+                      className="text-sm text-slate-900 dark:text-white font-medium truncate hover:text-sky-400 transition-colors text-left"
+                    >
                       {card.name}
-                    </span>
+                    </button>
                     <span
                       className={`text-xs shrink-0 ${TYPE_COLORS[card.typeName] ?? "text-slate-400"}`}
                     >
@@ -108,15 +116,15 @@ export function CardPool({ cards, allTypeNames }: CardPoolProps) {
                   <button
                     onClick={() => setEntry(card.id, qty - 1)}
                     disabled={qty === 0}
-                    className="w-6 h-6 flex items-center justify-center rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-30 text-white text-sm"
+                    className="w-6 h-6 flex items-center justify-center rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-30 text-slate-800 dark:text-white text-sm"
                   >
                     −
                   </button>
-                  <span className="w-4 text-center text-sm text-white">{qty}</span>
+                  <span className="w-4 text-center text-sm text-slate-900 dark:text-white">{qty}</span>
                   <button
                     onClick={() => setEntry(card.id, qty + 1)}
                     disabled={qty >= 3}
-                    className="w-6 h-6 flex items-center justify-center rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-30 text-white text-sm"
+                    className="w-6 h-6 flex items-center justify-center rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-30 text-slate-800 dark:text-white text-sm"
                   >
                     +
                   </button>
@@ -126,6 +134,12 @@ export function CardPool({ cards, allTypeNames }: CardPoolProps) {
           })
         )}
       </div>
+
+      {previewCard && (
+        <Modal onClose={() => setPreviewCard(null)}>
+          <CardPreview card={previewCard} />
+        </Modal>
+      )}
     </div>
   );
 }
