@@ -15,6 +15,9 @@ import { RegisterPage } from "./routes/register";
 import { DeckBuilderPage } from "./routes/deckbuilder";
 import { DeckDetailPage } from "./routes/deck-detail";
 import { AdminCardsPage } from "./routes/admin-cards";
+import { AdminDashboardPage } from "./routes/admin";
+import { AdminDecksPage } from "./routes/admin-decks";
+import { AdminPlayPage } from "./routes/admin-play";
 
 function NavBar() {
   const { user } = useAuthStore();
@@ -40,9 +43,14 @@ function NavBar() {
           Build Deck
         </Link>
         {user?.isAdmin && (
-          <Link to="/admin/cards" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">
-            Admin
-          </Link>
+          <>
+            <Link to="/admin" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">
+              Admin
+            </Link>
+            <Link to="/admin/cards" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">
+              Admin Cards
+            </Link>
+          </>
         )}
         {user ? (
           <>
@@ -126,6 +134,24 @@ const adminCardsRoute = createRoute({
   component: AdminCardsPage,
 });
 
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin",
+  component: AdminDashboardPage,
+});
+
+const adminDecksRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/decks",
+  component: AdminDecksPage,
+});
+
+const adminPlayRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/play",
+  component: AdminPlayPage,
+});
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   loginRoute,
@@ -133,6 +159,9 @@ const routeTree = rootRoute.addChildren([
   deckBuilderRoute,
   deckDetailRoute,
   adminCardsRoute,
+  adminRoute,
+  adminDecksRoute,
+  adminPlayRoute,
 ]);
 
 export const router = createRouter({ routeTree });

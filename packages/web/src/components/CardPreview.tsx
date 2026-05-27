@@ -16,7 +16,7 @@ const ART_BG: Record<string, string> = {
   Invader: "from-orange-950 via-slate-800 to-slate-900",
 };
 
-export function CardPreview({ card }: { card: Card }) {
+export function CardPreview({ card, scale = 1, noWrapper = false }: { card: Card; scale?: number; noWrapper?: boolean }) {
   const faction = card.isMonarch ? "Monarch" : "Invader";
   const borderColor = card.isMonarch ? "border-emerald-500" : "border-orange-600";
   const factionText = card.isMonarch ? "text-emerald-400" : "text-orange-400";
@@ -36,10 +36,10 @@ export function CardPreview({ card }: { card: Card }) {
 
   const allStats = [...combatStats, ...castleStats];
 
-  return (
-    <div className="p-6 rounded-2xl bg-slate-200 dark:bg-slate-800">
+  const card_ = (
       <div
         className={`w-64 flex flex-col bg-white dark:bg-slate-900 border-2 ${borderColor} rounded-2xl overflow-hidden shadow-2xl select-none`}
+        style={noWrapper && scale !== 1 ? { zoom: scale } : undefined}
       >
         {/* Header */}
         <div className="flex items-start justify-between px-3 pt-3 pb-2 gap-2">
@@ -109,6 +109,13 @@ export function CardPreview({ card }: { card: Card }) {
           )}
         </div>
       </div>
+  );
+
+  if (noWrapper) return card_;
+
+  return (
+    <div className="p-6 rounded-2xl bg-slate-200 dark:bg-slate-800" style={scale !== 1 ? { zoom: scale } : undefined}>
+      {card_}
     </div>
   );
 }

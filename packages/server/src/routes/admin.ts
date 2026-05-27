@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
 import { db } from "../db/client";
-import { cards, cardTypes } from "@siege/shared/db-schema";
-import { eq, isNull, asc } from "drizzle-orm";
+import { cards, cardTypes, decks, users } from "@siege/shared/db-schema";
+import { eq, isNull, asc, desc } from "drizzle-orm";
 import { withSession } from "../lib/auth-middleware";
 
 const cardBodySchema = t.Object({
@@ -62,6 +62,58 @@ async function queryCards() {
 
 export const adminRoutes = new Elysia({ prefix: "/api" })
   .use(withSession)
+  .get("/admin/decks", async ({ user, status }) => {
+    if (!user?.isAdmin) return status(403, { message: "Forbidden" });
+    const [allDecks, allUsers, allCards] = await Promise.all([
+      db.select().from(decks).where(isNull(decks.deletedAt)).orderBy(desc(decks.createdAt)).limit(50),
+      db.select({ id: users.id, username: users.username }).from(users),
+      db.select({ id: cards.id, deckPoints: cards.deckPoints }).from(cards),
+    ]);
+    const usernameById = new Map(allUsers.map((u) => [u.id, u.username]));
+    const pointsById = new Map(allCards.map((c) => [c.id, c.deckPoints ?? 0]));
+    return allDecks.map((d) => {
+      const entries = d.cards as Array<{ cardId: number; quantity: number }>;
+      const cardCount = entries.reduce((s, e) => s + e.quantity, 0);
+      const totalPoints = entries.reduce(
+        (s, e) => s + (pointsById.get(e.cardId) ?? 0) * e.quantity,
+        0
+      );
+      return {
+        id: d.id,
+        name: d.name,
+        ownerUsername: usernameById.get(d.userId) ?? "unknown",
+        isMonarch: d.isMonarch,
+        cardCount,
+        totalPoints,
+        createdAt: d.createdAt,
+      };
+    });
+  })
+  .get("/admin/cards/popular", async ({ user, status }) => {
+    if (!user?.isAdmin) return status(403, { message: "Forbidden" });
+    const [allDecks, allCards, allTypes] = await Promise.all([
+      db.select({ cards: decks.cards }).from(decks).where(isNull(decks.deletedAt)),
+      db.select().from(cards).where(isNull(cards.deletedAt)),
+      db.select().from(cardTypes),
+    ]);
+    const typeMap = new Map(allTypes.map((t) => [t.id, t.type]));
+    const cardMap = new Map(allCards.map((c) => [c.id, c]));
+    const counts = new Map<number, number>();
+    for (const d of allDecks) {
+      const entries = d.cards as Array<{ cardId: number; quantity: number }>;
+      for (const e of entries) counts.set(e.cardId, (counts.get(e.cardId) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([cardId, deckCount]) => {
+        const c = cardMap.get(cardId)!;
+        return {
+          card: { ...c, typeName: typeMap.get(c.typeId) ?? "" },
+          deckCount,
+        };
+      });
+  })
   .get("/admin/card-types", async ({ user, status }) => {
     if (!user?.isAdmin) return status(403, { message: "Forbidden" });
     return queryCardTypes();

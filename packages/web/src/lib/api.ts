@@ -1,5 +1,15 @@
 import type { Card, CardEffects, CardType, DeckDetail, AuthUser } from "@siege/shared/types";
 
+export type AdminDeckSummary = {
+  id: number;
+  name: string;
+  ownerUsername: string;
+  isMonarch: boolean;
+  cardCount: number;
+  totalPoints: number;
+  createdAt: string | null;
+};
+
 export type AdminCardBody = {
   isMonarch: boolean;
   typeId: number;
@@ -71,8 +81,13 @@ export const api = {
   },
   admin: {
     cardTypes: () => apiFetch<CardType[]>("/api/admin/card-types"),
+    decks: {
+      list: () => apiFetch<AdminDeckSummary[]>("/api/admin/decks"),
+    },
     cards: {
       list: () => apiFetch<Card[]>("/api/admin/cards"),
+      popular: () =>
+        apiFetch<{ card: Card; deckCount: number }[]>("/api/admin/cards/popular"),
       create: (body: AdminCardBody) =>
         apiFetch<Card>("/api/admin/cards", {
           method: "POST",

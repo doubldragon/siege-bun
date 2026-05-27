@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../store/auth";
 import { api, type AdminCardBody } from "../lib/api";
@@ -390,7 +390,10 @@ export function AdminCardsPage() {
   return (
     <main className="max-w-7xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-slate-900 dark:text-white">Admin — Cards</h1>
+        <div className="flex flex-col gap-1">
+          <Link to="/admin" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">← Admin</Link>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Admin — Cards</h1>
+        </div>
         <button
           onClick={() => setModal({ mode: "create" })}
           className="bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm px-4 py-2 rounded"
